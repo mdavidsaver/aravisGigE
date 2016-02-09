@@ -1,5 +1,9 @@
+#!../../bin/linux-x86_64/aravisGigEApp
 < envPaths
 errlogInit(20000)
+
+epicsEnvSet("EPICS_CAS_SERVER_PORT","15064")
+epicsEnvSet("EPICS_CA_MAX_ARRAY_BYTES","5600000")
 
 dbLoadDatabase("$(TOP)/dbd/aravisGigEApp.dbd")
 aravisGigEApp_registerRecordDeviceDriver(pdbbase) 
@@ -23,18 +27,21 @@ epicsEnvSet("EPICS_DB_INCLUDE_PATH", "$(ADCORE)/db")
 
 #aravisCameraConfig("$(PORT)", "Prosilica-02-2131A-06202")
 #aravisCameraConfig("$(PORT)", "Point Grey Research-14273040")
-aravisCameraConfig("$(PORT)", "Photonic Science-V3")
+#aravisCameraConfig("$(PORT)", "The Imaging Source Europe GmbH-43510084")
+aravisCameraConfig("$(PORT)", "Basler-21795168")
 asynSetTraceMask("$(PORT)",0,0x21)
-dbLoadRecords("$(ARAVISGIGE)/db/aravisCamera.template", "P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
+#dbLoadRecords("$(ARAVISGIGE)/db/aravisCamera.template", "P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
+dbLoadRecords("$(ARAVISGIGE)/db/Basler_acA1600_20gm.template", "P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
 #dbLoadRecords("$(ARAVISGIGE)/db/Prosilica_GC.template","P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
 #dbLoadRecords("$(ARAVISGIGE)/db/PGR_Flea3.template","P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
 #dbLoadRecords("$(ARAVISGIGE)/db/PSL_SCMOS.template","P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
-dbLoadRecords("$(ARAVISGIGE)/db/PSL_FDI3.template","P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
+#dbLoadRecords("$(ARAVISGIGE)/db/PSL_FDI3.template","P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
 
 # Create a standard arrays plugin
 NDStdArraysConfigure("Image1", 5, 0, "$(PORT)", 0, 0)
 # Allow for cameras up to 2048x2048x3 for RGB
-dbLoadRecords("$(ADCORE)/db/NDStdArrays.template", "P=$(PREFIX),R=image1:,PORT=Image1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=$(PORT),TYPE=Int16,FTVL=SHORT,NELEMENTS=12582912")
+# 1920*1200 = 2304000
+dbLoadRecords("$(ADCORE)/db/NDStdArrays.template", "P=$(PREFIX),R=image1:,PORT=Image1,ADDR=0,TIMEOUT=1,NDARRAY_PORT=$(PORT),TYPE=Int16,FTVL=SHORT,NELEMENTS=2304000")
 
 # Load all other plugins using commonPlugins.cmd
 < $(ADCORE)/iocBoot/commonPlugins.cmd
@@ -45,6 +52,8 @@ set_requestfile_path("$(ADPILATUS)/prosilicaApp/Db")
 
 
 iocInit()
+
+makeAutosaveFileFromDbInfo("./auto_settings.req", "autosaveFields")
 
 # save things every thirty seconds
 create_monitor_set("auto_settings.req", 30,"P=$(PREFIX)")
