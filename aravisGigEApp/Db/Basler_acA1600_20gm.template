@@ -207,6 +207,15 @@ record(mbbo, "$(P)$(R)TriggerMode") {
 
 
 
+# Seems to be necessary to "select" target for GainAuto and GainRaw
+record(mbbo, "$(P)$(R)GainSelect_") {
+  field(DTYP, "asynInt32")
+  field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ARVI_GainSelector")
+  field(PINI, "RUNNING")
+  field(ZRST, "All")
+  field(ZRVL, "0")
+}
+
 record(mbbi, "$(P)$(R)GainAuto_RBV") {
   field(DTYP, "asynInt32")
   field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ARVI_GainAuto")
